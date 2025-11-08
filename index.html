@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>บันทึกการมาทำงาน</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    input, button { padding: 10px; margin: 5px; }
+    table { margin: 20px auto; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 6px 12px; }
+  </style>
+</head>
+<body>
+  <h1>📋 ระบบบันทึกการมาทำงาน</h1>
+
+  <input type="text" id="name" placeholder="กรอกชื่อพนักงาน" />
+  <br />
+  <button onclick="check('in')">มาแล้ว</button>
+  <button onclick="check('out')">กลับแล้ว</button>
+
+  <h3>ประวัติการบันทึกล่าสุด</h3>
+  <table>
+    <tr><th>ชื่อ</th><th>การกระทำ</th><th>เวลา</th></tr>
+    {% for r in records %}
+    <tr>
+      <td>{{ r.name }}</td>
+      <td>{{ 'มาแล้ว' if r.action == 'in' else 'กลับแล้ว' }}</td>
+      <td>{{ r.time }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <script>
+    async function check(action) {
+      const name = document.getElementById("name").value;
+      if (!name) return alert("กรุณากรอกชื่อก่อน");
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("action", action);
+
+      const res = await fetch("/check", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (data.status === "success") {
+        alert(`บันทึกสำเร็จ: ${data.record.name} (${data.record.action})`);
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
